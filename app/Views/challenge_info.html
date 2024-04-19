@@ -22,6 +22,8 @@
         {% endif %}
     </div>
     <div class="modal-footer">
-        <button id="save" value="upload" form="challenge_form"  type="submit" class="btn btn-primary" data-bs-dismiss="modal" >Salva</button>
+    {% if challenge.show_photo %}
+     <button id="save" value="upload" form="challenge_form"  type="submit" class="btn btn-primary" data-bs-dismiss="modal" >Salva</button>
+     {% endif %}
         <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Indietro</button>
     </div>
