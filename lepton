@@ -1,0 +1,182 @@
+#!/bin/php
+<?php
+
+// Set the directory to monitor
+require __DIR__."/vendor/autoload.php";
+use ScssPhp\ScssPhp\Compiler;
+
+$directory = __DIR__."/resources/_sass";
+$cssFolder = __DIR__.'/resources/css/';
+
+
+// Clean output folder
+array_map('unlink', array_filter((array) glob($cssFolder."*")));
+
+
+
+$dependancyTree = array();
+echo "Running...".PHP_EOL;
+$compile_sass = false;
+if(is_dir($directory)) {
+    $compile_sass = true;
+    echo "\e[32mCompiling assets...\e[39m".PHP_EOL;
+
+    $fileHashes = array();
+    updateMainFiles();
+
+    // Compile the files
+
+    foreach($fileHashes as $file => $hash) {
+        $file = realpath($file);
+        $fileDependancies = compileFile($file);
+        $fileHashes[$file] = filemtime($file);
+        $dependancyTree[$file] = $fileDependancies;
+        foreach($fileDependancies as $dep) {
+            $fileHashes[realpath($dep)] = filemtime($dep);
+        }
+    }
+
+
+    echo "Dependancies tree built.".PHP_EOL.PHP_EOL;
+    echo "\e[32mWatching in $directory\e[39m".PHP_EOL.PHP_EOL;
+
+    // Compute md5 hash for files
+    foreach($dependancyTree as $file => $where) {
+        $fileHashes[$file] = filemtime($file);
+    }
+
+} else {
+    echo "\e[32mNo _sass directory found\e[39m".PHP_EOL;
+}
+echo "\e[33mStarting PHP WebServer (ONLY FOR DEVELOPMENT) at http://127.0.0.1:5555\e[39m".PHP_EOL.PHP_EOL;
+
+//Start the PHP built-in web server
+$command = sprintf('php -S localhost:5555 -t %s webserver.php', __DIR__);
+$webServerProcess = proc_open($command, [STDIN, STDOUT, STDERR], $pipes);
+
+
+while(true) {
+    if($compile_sass) {
+        cleanDeletedFiles();
+        updateMainFiles();
+        foreach($fileHashes as $file => $hash) {
+            $file = realpath($file);
+            if(file_exists($file)) {
+                $newHash = filemtime($file);
+                if($newHash != $hash) {
+                    echo "\e[93mFile $file modified!\e[39m".PHP_EOL;
+                    $fileHashes[$file] = $newHash;
+
+                    // if it's a main file
+                    if(key_exists($file, $dependancyTree)) {
+                        $included = compileFile($file);
+                        $dependancyTree[$file] = $included;
+                    } else { // if it's an included file
+                        foreach($dependancyTree as $main => $dependancies) {
+                            if(in_array($file, $dependancies)) {
+                                $included = compileFile($main);
+                                $dependancyTree[$main] = $included;
+                            }
+                        }
+                    }
+
+                }
+            } else {
+                unset($fileHashes[$file]);
+            }
+        }
+    }
+    sleep(1);
+}
+
+
+
+echo "TERMINATING";
+proc_terminate($webServerProcess);
+
+
+function cleanDeletedFiles()
+{
+    global $fileHashes;
+    global $dependancyTree;
+    foreach($fileHashes as $file => $hash) {
+        if(!file_exists($file)) {
+            unset($fileHashes[$file]);
+            foreach($dependancyTree as $main => $dependancies) {
+                if($main == $file) {
+                    unset($dependancyTree[$main]);
+                }
+                if(in_array($file, $dependancies)) {
+                    $key = array_search($file, $dependancies);
+                    unset($dependancyTree[$main][$key]);
+                }
+            }
+        }
+    }
+}
+
+
+function compileScss($inputFile)
+{
+    global $directory;
+    global $cssFolder;
+    global $fileHashes;
+
+    $compiler = new Compiler();
+    $compiler->setImportPaths($directory."/");
+
+    if (is_file($inputFile)) {
+        // Set the path to the output CSS file
+        $outputFile = preg_replace('/(.*)\.(sass|scss)$/', '$1.css', basename($inputFile));
+        $outputFile =  $cssFolder.$outputFile;
+        // Compile the SCSS code into CSS
+        try {
+            $result = $compiler->compileString(file_get_contents($inputFile));
+
+            $outputdir = dirname($outputFile);
+
+            // Create the directories recursively
+            if (!is_dir($outputdir)) {
+                mkdir($outputdir, 0755, true);
+            }
+            file_put_contents($outputFile, $result->getCss());
+            return $result->getIncludedFiles();
+        } catch (\Exception $e) {
+            print_r($e);
+            syslog(LOG_ERR, 'scssphp: Unable to compile content');
+        }
+
+    } else {
+        echo "Invalid file".PHP_EOL;
+    }
+}
+
+function compileFile($file)
+{
+    $fileNameArray = explode("/", $file);
+    $fileName = end($fileNameArray);
+    echo "\e[39m\t==> Compiling $fileName... \e[39m";
+    $included = compileScss($file);
+    echo "\e[32mDone!\e[39m".PHP_EOL;
+    return $included;
+}
+
+function updateMainFiles()
+{
+    global $directory;
+    global $fileHashes;
+
+    $files = glob($directory . '/*');  // Get all files in the directory
+
+
+    foreach ($files as $file) {
+        $file = realpath($file);
+        $pattern = '/^\/.+\/[^_]*[.](scss|sass)/';     // Specify the regex pattern for file names
+        if(preg_match($pattern, $file)) {
+            if(! array_key_exists($file, $fileHashes)) {
+                $fileHashes[$file] = 0;
+            }
+        }
+    }
+
+}

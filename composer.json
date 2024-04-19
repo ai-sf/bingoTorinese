@@ -1,0 +1,46 @@
+{
+    "name": "aisf/lepton-app-basic",
+    "description": "LEPTON basic app",
+    "type": "template",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Roberto Ciccarelli",
+            "email": "robyciccarelli.rc@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "aisf/lepton": "@dev",
+        "liquid/liquid": "^1.4",
+        "scssphp/scssphp": "^1.11",
+        "twbs/bootstrap": "^5.3"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    },
+
+    "extra": {
+        "installer-paths": {
+            "lepton": [
+                "aisf/lepton"
+            ]
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "vendor/aisf/lepton/",
+            "options": {
+                "symlink": true
+            }
+        }
+    ]
+}

@@ -1,0 +1,26 @@
+    <div class="modal-header">
+        <h2 class="modal-title corsivo">{{challenge.title}}</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+
+        {% if has_photo %}
+        <h4 class="corsivo">Foto caricata</h4>
+        <div class="mb-3">
+            <img src="{{uploaded_photo.path | replace: "resources/", "" | url }}" class="img-thumbnail">
+        </div>
+        {% endif %}
+        <h4 class="corsivo">Carica foto</h4>
+        <div class="mb-3">
+            <form enctype="multipart/form-data" id="photo_form" method="post" hx-swap="none" hx-post="{{"photos/upload_photo" | url}}">
+                    <input class="form-control" name="photo" type="file" id="formFile">
+                    <input type="hidden" name="photo_id" value="{{challenge.id}}">
+            </form>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button id="save" value="upload" form="photo_form" type="submit" class="btn btn-primary"
+            data-bs-dismiss="modal">Salva</button>
+        <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Indietro</button>
+    </div>

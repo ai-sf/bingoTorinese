@@ -1,0 +1,23 @@
+{% extends "Templates/base_footer" %}
+
+{% block content %}
+
+<div class="container-fluid bg-primary pt-3 vh-100">
+
+
+<div class="card">
+<div class="card-body">
+<form hx-post="{{"admin/toggleOpen" | url}}" hx-trigger="change from:find input" hx-swap="none">
+    <div class="form-check form-switch d-flex align-items-center">
+        <input class="form-check-input me-3" name="has_started" {% if is_open %} checked {% endif
+            %}type="checkbox" role="switch" id="start-game">
+        <label class="form-check-label fs-5 fw-bold" for="start-game">Avvia gara</label>
+    </div>
+</form>
+
+    </div>
+</div>
+
+
+
+{% endblock %}

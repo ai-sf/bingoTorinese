@@ -1,0 +1,89 @@
+{% extends "Templates/base_footer" %}
+
+{% block content %}
+
+<div class="container-fluid bg-primary pt-3">
+
+
+<div class="card my-3">
+    <div class="card-body">
+        <h1 class="text-center corsivo">Squadra</h1>
+        <form hx-post="{{"team/changeName/" | append: team.id | url}}" hx-swap="none" class="d-flex flex-column align-items-center justify-content-center">
+            <div class="input-group input-group-lg">
+            <input type="text" class="form-control" name="team_name" value="{{team.name}}" placeholder="Nome squadra">
+            </div>
+            <button type="submit" class="btn btn-outline-primary btn-sm mt-2"><i class="bi bi-floppy-fill me-2"></i>Salva</button>
+        </form>
+    </div>
+</div>
+
+
+<h1 class="corsivo text-white text-center mt-5" style="font-size: 250%">Sfide</h1>
+
+
+<div class=" mx-auto my-auto card px-2 py-2 shadow">
+    <div class="card-body">
+
+        <div class="row bingo-table">
+            {% for challenge in challenges %}
+            <div data-bs-toggle="modal" hx-target="#uploadModal .modal-content" hx-swap="innerHtml" hx-get="{{"challenge/info/" | append: challenge.id | url}}" role="button" data-bs-target="#uploadModal"
+                class="challenge {% if completed_challenges contains challenge.id %} challenge-done {% endif %}">
+                <a>
+                    {{challenge.title}}
+                </a>
+                {% if challenge.show_photo %}
+                <i class="bi bi-camera"></i>
+                {% endif %}
+            </div>
+
+            {% endfor %}
+        </div>
+
+
+
+
+
+    </div>
+</div>
+
+
+<h1 class="corsivo text-white text-center mt-5" style="font-size: 250%">Zone di Torino</h1>
+<div class="row">
+{% for group in photogroups %}
+<div class="col col-12 col-md-4 my-3">
+<div class=" mx-auto my-auto card p-2 shadow">
+    <div class="card-body">
+      <h3 class="text-center"><span class="corsivo">{{group.name}}</span></h3>
+    <div class="row bingo-table">
+        {% for photo in group.photos %}
+        <div data-bs-toggle="modal" hx-target="#uploadModal .modal-content" hx-swap="innerHtml" hx-get="{{"photo/info/" | append: photo.id | url}}" role="button" data-bs-target="#uploadModal" class="challenge {% if completed_photos contains photo.id %} challenge-done {% endif %}">
+            <a>
+                {{photo.title}}
+            </a>
+            <i class="bi bi-camera"></i>
+
+        </div>
+
+        {% endfor %}
+    </div>
+
+    </div>
+</div>
+</div>
+{% endfor %}
+</div>
+
+
+</div>
+
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
