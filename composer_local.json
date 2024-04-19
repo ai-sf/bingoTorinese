@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": ">=8.1",
-        "aisf/lepton": "^0.3.1",
+        "aisf/lepton": "@dev",
         "liquid/liquid": "^1.4",
         "scssphp/scssphp": "^1.11",
         "twbs/bootstrap": "^5.3"
@@ -25,5 +25,22 @@
         "allow-plugins": {
             "composer/installers": true
         }
-    }
+    },
+
+    "extra": {
+        "installer-paths": {
+            "lepton": [
+                "aisf/lepton"
+            ]
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "vendor/aisf/lepton/",
+            "options": {
+                "symlink": true
+            }
+        }
+    ]
 }
