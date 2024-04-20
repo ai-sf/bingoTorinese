@@ -444,4 +444,11 @@ class BingoController extends BaseController
         });
         return $this->render("standings", ["standings" => $standings]);
     }
+
+    #[LoginRequired(level: 1)]
+    public function viewPhotos($id){
+        $team = Team::get($id);
+        $teamphotos = TeamHasPhoto::filter(team: $team);
+        return $this->render("standings_info", ["team" => $team, "photos" => $teamphotos]);
+    }
 }

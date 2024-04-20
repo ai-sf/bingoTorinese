@@ -18,5 +18,6 @@ return [
     "team/changeName/<int:team_id>" => [BingoController::class, "changeName"],
     "admin" => [BingoController::class, "admin"],
     "admin/toggleOpen" => [BingoController::class, "toggleOpen"],
-    "standings" => [BingoController::class, "standings"]
+    "standings" => [BingoController::class, "standings"],
+    "team/viewPhotos/<int:id>" => [BingoController::class, "viewPhotos"]
  ];

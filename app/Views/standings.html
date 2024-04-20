@@ -24,7 +24,7 @@
                 </div>
                 <div class="row mt-2">
                     <div class="col col-auto">
-                        <a data-bs-toggle="modal"  hx-target="#teamModal .modal-content" hx-swap="innerHtml" :hx-get="'{{"team/listUsers/" | url}}' + team.id"  role="button" data-bs-target="#teamModal"  class="btn btn-sm btn-outline-primary"><i
+                        <a data-bs-toggle="modal"  hx-target="#teamModal .modal-content" hx-swap="innerHtml" hx-get=" {{"team/viewPhotos/" | append: stand.team.id}}"  role="button" data-bs-target="#teamModal"  class="btn btn-sm btn-outline-primary"><i
                                 class="bi bi-camera me-1"></i>Vedi foto</a>
                     </div>
 

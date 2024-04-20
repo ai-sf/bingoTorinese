@@ -1,0 +1,45 @@
+    <div class="modal-header">
+        <h2 class="modal-title corsivo">{{team.name}}</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <div id="carousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% assign first = 1 %}
+                {% for photo in photos %}
+                    <div class="carousel-item {% if first %}active{% endif %}">
+                        <img src="{{photo.path | replace: "resources/", "" | url }}" class="d-block w-100">
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>{{photo.photo.title}}</h5>
+                        </div>
+                    </div>
+                    {% assign first = 0%}
+                {% endfor %}
+            </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+        </div>
+    </div>
+    <div class="modal-footer">
+    {% if challenge.show_photo %}
+     <button id="save" value="upload" form="challenge_form"  type="submit" class="btn btn-primary" data-bs-dismiss="modal" >Salva</button>
+     {% endif %}
+        <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Indietro</button>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+                const myCarouselElement = document.querySelector('#carousel')
+
+                const carousel = new bootstrap.Carousel(myCarouselElement, {
+                    interval: 2000,
+                    touch: true
+                });
+            });
+</script>
