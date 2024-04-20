@@ -434,6 +434,7 @@ class BingoController extends BaseController
             $challenges_array = [];
             foreach($challenges as $challenge){
                 $challenges_array[] = $challenge->challenge->id;
+                echo $challenge->challenge->title."   ".$challenge->team->id."</br>";
             }
 
             $standings[] = ["team" => $team, "points" => count(array_unique($challenges_array))];
