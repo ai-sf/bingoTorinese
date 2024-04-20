@@ -8,7 +8,7 @@
                 {% assign first = 1 %}
                 {% for photo in photos %}
                     <div  class="carousel-item {% if first %}active{% endif %}">
-                        <img  src="{{photo.path | replace: "resources/", "" | url }}" class="d-block">
+                        <img  src="{{photo.path | replace: "resources/", "" | url }}" class="d-block w-100">
                         <div class="carousel-caption d-none d-md-block">
                             <h5>{{photo.photo.title}}</h5>
                         </div>
