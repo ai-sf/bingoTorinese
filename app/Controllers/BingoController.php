@@ -431,7 +431,12 @@ class BingoController extends BaseController
         $standings = [];
         foreach($teams as $team){
             $challenges = TeamHasChallenge::filter(team: $team);
-            $standings[] = ["team" => $team, "points" => $challenges->count()];
+            $challenges_array = [];
+            foreach($challenges as $challenge){
+                $challenges_array[] = $challenge->challenge->id;
+            }
+
+            $standings[] = ["team" => $team, "points" => count(array_unique($challenges_array))];
         }
 
         usort($standings, function($a, $b){
