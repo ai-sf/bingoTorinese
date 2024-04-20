@@ -1,0 +1,48 @@
+{% extends "Templates/base_footer" %}
+
+{% block content %}
+
+<div class="container-fluid bg-primary pt-3 pb-5">
+<h1 class="fs-1 text-center corsivo text-white mb-5">
+    Squadre
+</h1>
+
+
+{% for stand in standings %}
+        <div class="card shadow-xl my-2">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h3 class="corsivo my-0">{{stand.team.name}}</h3>
+                    </div>
+                    <div class="col-6 fw-bold text-primary">
+                        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="{{stand.points}}" aria-valuemin="0" aria-valuemax="14">
+                            <div class="progress-bar" style="width: {{ stand.points | divided_by: 14 | times: 100}}%"></div>
+                        </div>
+                        <div class="text-end mt-2">{{stand.points}} punti</div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col col-auto">
+                        <a data-bs-toggle="modal"  hx-target="#teamModal .modal-content" hx-swap="innerHtml" :hx-get="'{{"team/listUsers/" | url}}' + team.id"  role="button" data-bs-target="#teamModal"  class="btn btn-sm btn-outline-primary"><i
+                                class="bi bi-camera me-1"></i>Vedi foto</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+</div>
+
+
+<div class="modal fade" id="teamModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

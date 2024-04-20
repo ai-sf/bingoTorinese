@@ -422,4 +422,21 @@ class BingoController extends BaseController
             headers: ['HX-Trigger' => 'showToast']
         );
     }
+
+
+
+    #[LoginRequired(level: 3)]
+    public function standings(){
+        $teams = Team::all();
+        $standings = [];
+        foreach($teams as $team){
+            $challenges = TeamHasChallenge::filter(team: $team);
+            $standings[] = ["team" => $team, "points" => $challenges->count()];
+        }
+
+        usort($standings, function($a, $b){
+            return $b["points"] - $a["points"];
+        });
+        return $this->render("standings", ["standings" => $standings]);
+    }
 }
