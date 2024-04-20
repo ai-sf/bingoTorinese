@@ -7,8 +7,8 @@
             <div class="carousel-inner">
                 {% assign first = 1 %}
                 {% for photo in photos %}
-                    <div class="carousel-item {% if first %}active{% endif %}">
-                        <img src="{{photo.path | replace: "resources/", "" | url }}" class="d-block w-100">
+                    <div  class="carousel-item {% if first %}active{% endif %}">
+                        <img  src="{{photo.path | replace: "resources/", "" | url }}" class="d-block">
                         <div class="carousel-caption d-none d-md-block">
                             <h5>{{photo.photo.title}}</h5>
                         </div>
@@ -27,17 +27,15 @@
         </div>
     </div>
     <div class="modal-footer">
-    {% if challenge.show_photo %}
-     <button id="save" value="upload" form="challenge_form"  type="submit" class="btn btn-primary" data-bs-dismiss="modal" >Salva</button>
-     {% endif %}
+
         <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Indietro</button>
     </div>
 
     <script>
         window.addEventListener('DOMContentLoaded', (event) => {
-                const myCarouselElement = document.querySelector('#carousel')
+                myCarouselElement = document.querySelector('#carousel')
 
-                const carousel = new bootstrap.Carousel(myCarouselElement, {
+                carousel = new bootstrap.Carousel(myCarouselElement, {
                     interval: 2000,
                     touch: true
                 });
