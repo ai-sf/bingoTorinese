@@ -6,5 +6,5 @@ return (object) [
   "host" => "localhost",
   "user" => "mysql",
   "password" => "mysqlpwd",
-  "dbname" => "voting",
+  "dbname" => "bingo",
 ];

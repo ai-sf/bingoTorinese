@@ -1,0 +1,53 @@
+{% extends "Templates/base_footer" %}
+
+{% block content %}
+
+<div class="container-fluid bg-primary pt-3 min-vh-100 pb-5">
+    <div class="mb-3">
+        <a href="{{"admin" | url}}" class="btn btn-light shadow-sm"><i class="bi bi-arrow-left"></i> Torna alla Dashboard</a>
+    </div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title">Sfide Manuali</h5>
+        
+        <div class="table-responsive mt-3">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th style="min-width: 150px;">Squadra</th>
+                        {% for c in manual_challenges %}
+                        <th class="text-center" style="min-width: 150px;">
+                            {{ c.title }}
+                            <div class="small fw-normal text-muted">{{ c.points }} pt</div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in teams %}
+                    <tr>
+                        <td class="fw-bold">{{ t.name }}</td>
+                        {% for c in manual_challenges %}
+                        <td class="text-center">
+                            <div class="form-check form-switch d-flex justify-content-center m-0 p-0">                               
+                                <input class="form-check-input shadow-sm" style="cursor: pointer; transform: scale(1.3); margin-top: 0; margin-left: 0;" type="checkbox" role="switch" 
+                                hx-post="{{"admin/toggleManual" | url}}" 
+                                hx-swap="none" 
+                                hx-vals='{"team_id": {{ t.id }}, "challenge_id": {{ c.id }}}'
+                                {% if team_challenges[t.id] contains c.id %}
+                                    checked
+                                {% endif %}>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

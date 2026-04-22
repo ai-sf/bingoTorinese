@@ -12,4 +12,5 @@ class PhotoGroup extends Model
     #[PrimaryKey] protected $id;
     #[CharField(max_length: 128)] protected $name;
     #[ReverseRelation(Photo::class, "group")] protected $photos;
+    #[NumberField(default: 0)] protected $is_multiplier;
 }

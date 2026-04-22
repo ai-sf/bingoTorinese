@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Lepton\Boson\Model;
-use Lepton\Boson\DataTypes\{CharField, NumberField, ForeignKey, ManyToMany, PrimaryKey, ReverseRelation};
+use Lepton\Boson\DataTypes\{CharField, NumberField, ForeignKey, ManyToMany, PrimaryKey, ReverseRelation, DateTimeField};
 
 class TeamHasPhoto extends Model
 {
@@ -13,4 +13,5 @@ class TeamHasPhoto extends Model
     #[ForeignKey(Team::class)] protected $team;
     #[ForeignKey(Photo::class)] protected $photo;
     #[CharField(max_length: 128)] protected $path;
+    #[DateTimeField] protected $timestamp;
 }

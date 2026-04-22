@@ -5,14 +5,61 @@
 <div class="container-fluid" >
   <div class="row">
     <div class="col col-12 col-md-6 col-lg-4 mx-auto mt-5" >
-      <div class="card shadow-lg w-100">
 
+      {% if user.level != 3 %}
+      <div class="card shadow-lg w-100 mb-4">
         <div class="card-body">
-            <a class="btn btn-primary w-100" href="{{"challenges" | url}}">Sfide</a>
-            <a class="btn btn-primary w-100 mt-2" href="{{"teams" | url}}">Squadre</a>
+            <h1 class="text-center corsivo">
+                {% if user.level == 2 %}Re{% else %}Squadra{% endif %}
+            </h1>
+            <form hx-post="{{"changeName" | url}}" hx-swap="none" class="d-flex flex-column align-items-center justify-content-center">
+                <div class="input-group input-group-lg">
+                <input type="text" class="form-control text-center" name="team_name" 
+                       value="{% if user.level == 2 %}{{king.name}}{% else %}{{team.name}}{% endif %}" 
+                       placeholder="{% if user.level == 2 %}Nome Re{% else %}Nome squadra{% endif %}">
+                </div>
+                <button type="submit" class="btn btn-outline-primary btn-sm mt-2"><i class="bi bi-floppy-fill me-2"></i>Salva</button>
+            </form>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if error %}
+      <div class="alert alert-danger shadow-lg">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+      </div>
+      {% endif %}
+
+      <div class="card shadow-lg w-100 mb-4">
+          <div class="card-body">
+            {% if user.level == 1 %}
+            <a class="btn btn-primary my-2 w-100 btn-lg" href="{{"challenges" | url}}"><i class="bi bi-trophy-fill me-2"></i> Vai alle Sfide</a>
+            {% endif %}
+            {% if user.level == 2 %}
+            <h3 class="text-center corsivo text-warning"><i class="bi bi-crown-fill me-2"></i>Sei un Re!</h3>
+            <p class="text-center text-muted small">Condividi la tua posizione con tutti i partecipanti</p>
+            <form enctype="multipart/form-data" method="post" class="mb-5" action="{{"shareLocation" | url}}">
+                <div class="mb-3">
+                    <input type="text" name="location_name" class="form-control" placeholder="Dove ti trovi? (es. Murazzi)" required>
+                </div>
+                <div class="mb-3">
+                    <input type="file" name="photo" class="form-control" accept="image/*" capture="environment" required>
+                </div>
+                <button type="submit" class="btn btn-warning w-100"><i class="bi bi-send-fill me-2"></i>Condividi Posizione</button>
+            </form>
+            {% endif %}
+            <a class="btn btn-warning w-100 btn-lg text-dark" href="{{"kings" | url}}">
+                <i class="bi bi-map-fill me-2"></i> Cronologia dei Re
+            </a>
+            {% if user.level == 3 %}
+            <a class="btn btn-danger w-100 btn-lg mt-2" href="{{"admin" | url}}">
+                <i class="bi bi-shield-lock-fill me-2"></i> Interfaccia admin
+            </a>
+            {% endif %}
         </div>
       </div>
 
+     
 
     </div>
   </div>

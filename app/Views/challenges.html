@@ -5,20 +5,25 @@
 <div class="container-fluid bg-primary pt-3">
 
 
-<div class="card my-3">
-    <div class="card-body">
-        <h1 class="text-center corsivo">Squadra</h1>
-        <form hx-post="{{"team/changeName/" | append: team.id | url}}" hx-swap="none" class="d-flex flex-column align-items-center justify-content-center">
-            <div class="input-group input-group-lg">
-            <input type="text" class="form-control" name="team_name" value="{{team.name}}" placeholder="Nome squadra">
-            </div>
-            <button type="submit" class="btn btn-outline-primary btn-sm mt-2"><i class="bi bi-floppy-fill me-2"></i>Salva</button>
-        </form>
-    </div>
-</div>
+
 
 
 <h1 class="corsivo text-white text-center mt-5" style="font-size: 250%">Sfide</h1>
+
+<div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-lg border-0 bg-white bg-opacity-75 backdrop-blur">
+            <div class="card-body text-center py-4">
+                <h5 class="text-uppercase small fw-bold text-primary mb-1">Il Tuo Punteggio Attuale</h5>
+                <div class="display-4 fw-bold text-dark">{{ team_points.points | round: 0 }}</div>
+                <div class="text-muted small mt-2">
+                    <span class="me-3">Base: <strong>{{ team_points.base_points }}</strong></span>
+                    <span>Bonus: <strong class="text-success">+{{ team_points.multiplier_count | times: 10 }}%</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <div class=" mx-auto my-auto card px-2 py-2 shadow">
@@ -26,15 +31,31 @@
 
         <div class="row bingo-table">
             {% for challenge in challenges %}
-            <div data-bs-toggle="modal" hx-target="#uploadModal .modal-content" hx-swap="innerHtml" hx-get="{{"challenge/info/" | append: challenge.id | url}}" role="button" data-bs-target="#uploadModal"
-                class="challenge {% if completed_challenges contains challenge.id %} challenge-done {% endif %}">
+            
+            {% if hidden_challenges contains challenge.id %}
+            <div class="challenge" style="background-color: #6c757d; cursor: not-allowed; border-color: #5c636a;">
                 <a>
-                    {{challenge.title}}
+                    <i style="color: #dfdfdf;" class="bi bi-lock-fill"></i> 
+                    <div class="corsivo" style="color: #dfdfdf;"> Sfida nascosta </div>
+                </a>
+            </div>
+            {% else %}
+            <div data-bs-toggle="modal" hx-target="#uploadModal .modal-content" hx-swap="innerHtml" hx-get="{{"challenge/info/" | append: challenge.id | url}}" role="button" data-bs-target="#uploadModal"
+                class="challenge {% if completed_challenges[challenge.id] >= challenge.max_completions %} challenge-done {% endif %}">
+                <a>
+                    <div class="challenge-title">{{challenge.title}}</div> 
+                    <div>
+                        <small class="badge bg-primary-subtle text-primary border border-primary-subtle">+{{challenge.points}} pts</small>
+                    </div>
+                    {% if challenge.max_completions > 1 %}
+                        <div class="ms-1" style="font-family: var(--bs-body-font-family) !important;">({{ completed_challenges[challenge.id] | default: 0 }}/{{ challenge.max_completions }})</div>
+                    {% endif %}
                 </a>
                 {% if challenge.show_photo %}
                 <i class="bi bi-camera"></i>
                 {% endif %}
             </div>
+            {% endif %}
 
             {% endfor %}
         </div>
@@ -47,7 +68,6 @@
 </div>
 
 
-<h1 class="corsivo text-white text-center mt-5" style="font-size: 250%">Zone di Torino</h1>
 <div class="row">
 {% for group in photogroups %}
 <div class="col col-12 col-md-4 my-3">
@@ -58,7 +78,12 @@
         {% for photo in group.photos %}
         <div data-bs-toggle="modal" hx-target="#uploadModal .modal-content" hx-swap="innerHtml" hx-get="{{"photo/info/" | append: photo.id | url}}" role="button" data-bs-target="#uploadModal" class="challenge {% if completed_photos contains photo.id %} challenge-done {% endif %}">
             <a>
-                {{photo.title}}
+                <div class="challenge-title">{{photo.title}}</div>
+                <div>
+                    <small class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                        {% if group.is_multiplier %} +10% {% else %} +10 pts {% endif %}
+                    </small>
+                </div>
             </a>
             <i class="bi bi-camera"></i>
 

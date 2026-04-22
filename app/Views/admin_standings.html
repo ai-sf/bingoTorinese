@@ -1,0 +1,124 @@
+{% extends "Templates/base_footer" %}
+
+{% block content %}
+
+<div class="container-fluid bg-primary pt-3 min-vh-100 pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="corsivo text-white mb-0">Classifica Admin</h1>
+        <a href="{{"admin" | url}}" class="btn btn-outline-light"><i class="bi bi-arrow-left"></i> Dashboard</a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Pos.</th>
+                            <th>Squadra</th>
+                            <th class="text-center">Punti Base</th>
+                            <th class="text-center">Moltiplicatori</th>
+                            <th class="text-end">Punti Totali</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stand in standings %}
+                        <tr>
+                            <td>{{ forloop.index }}</td>
+                            <td class="fw-bold">{{ stand.team.name }}</td>
+                            <td class="text-center">{{ stand.base_points }}</td>
+                            <td class="text-center">
+                                <span class="badge bg-info text-dark">+{{ stand.multiplier_count | times: 10 }}%</span>
+                                ({{ stand.multiplier_count }})
+                            </td>
+                            <td class="text-end fs-5 fw-bold text-primary">
+                                {{ stand.points | round: 2 }}
+                                <div class="mt-1">
+                                    <button class="btn btn-sm btn-link p-0 text-decoration-none text-muted" type="button" data-bs-toggle="collapse" data-bs-target="#breakdown{{ forloop.index }}">
+                                        <small><i class="bi bi-info-circle"></i> Dettaglio</small>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="collapse" id="breakdown{{ forloop.index }}">
+                            <td colspan="5" class="bg-light-subtle py-3 border-top-0">
+                                <div class="px-3">
+                                    <h6 class="fw-bold mb-2 small text-uppercase">Dettaglio Punti</h6>
+                                    <div class="row row-cols-1 g-3">
+                                        <!-- Sfide -->
+                                        {% if stand.breakdown.size > 0 %}
+                                        <div class="col">
+                                            <h6 class="fw-bold mb-2 small text-uppercase text-muted border-bottom pb-1">Sfide Completate</h6>
+                                            <div class="row row-cols-1 row-cols-md-2 g-2">
+                                                {% for item in stand.breakdown %}
+                                                <div class="col">
+                                                    <div class="d-flex justify-content-between align-items-center bg-white border rounded p-2 small">
+                                                        <span>
+                                                            {% if item.has_photo %}
+                                                                {% for photo in item.photos %}
+                                                                <a href="{{ photo | url }}" target="_blank" class="text-primary me-1" title="Vedi foto"><i class="bi bi-camera-fill"></i></a>
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            {{ item.title }}
+                                                            {% if item.count > 1 %}
+                                                            <span class="badge bg-secondary-subtle text-secondary ms-1">x{{ item.count }}</span>
+                                                            {% endif %}
+                                                        </span>
+                                                        <span class="fw-bold text-success">+{{ item.points }}</span>
+                                                    </div>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        <!-- Locale / Foto -->
+                                        {% if stand.locales.size > 0 %}
+                                        <div class="col">
+                                            <h6 class="fw-bold mb-2 small text-uppercase text-muted border-bottom pb-1">Locali Visitati</h6>
+                                            <div class="row row-cols-1 row-cols-md-3 g-2">
+                                                {% for item in stand.locales %}
+                                                <div class="col">
+                                                    <a href="{{ item.photo | url }}" target="_blank" class="text-decoration-none">
+                                                        <div class="d-flex justify-content-between align-items-center bg-white border border-info-subtle rounded p-2 small">
+                                                            <span class="text-truncate text-dark" title="{{ item.title }}"><i class="bi bi-camera-fill text-info me-1"></i>{{ item.title }}</span>
+                                                            <span class="fw-bold text-success">+{{ item.points }}</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        <!-- Moltiplicatori -->
+                                        {% if stand.multipliers.size > 0 %}
+                                        <div class="col">
+                                            <h6 class="fw-bold mb-2 small text-uppercase text-muted border-bottom pb-1">Sfide dei Quattro Re (+10%)</h6>
+                                            <div class="row row-cols-1 row-cols-md-3 g-2">
+                                                {% for item in stand.multipliers %}
+                                                <div class="col">
+                                                    <a href="{{ item.photo | url }}" target="_blank" class="text-decoration-none">
+                                                        <div class="d-flex justify-content-between align-items-center bg-white border border-warning-subtle rounded p-2 small">
+                                                            <span class="text-truncate text-dark" title="{{ item.title }}"><i class="bi bi-camera-fill text-warning me-1"></i>{{ item.title }}</span>
+                                                            <span class="fw-bold text-warning">{{ item.points }}</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

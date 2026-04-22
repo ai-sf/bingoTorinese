@@ -1,0 +1,443 @@
+{% extends "Templates/base_footer" %}
+
+{% block content %}
+
+<div class="container-fluid bg-primary pt-3 min-vh-100 pb-5">
+    <div class="mb-3">
+        <a href="{{"admin" | url}}" class="btn btn-light shadow-sm"><i class="bi bi-arrow-left"></i> Torna alla Dashboard</a>
+    </div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title d-flex justify-content-between align-items-center">
+            Gestione Sfide
+            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addChallengeModal">Aggiungi Sfida</button>
+        </h5>
+        <div class="table-responsive mt-3">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Titolo</th>
+                        <th>Punti</th>
+                        <th>Max Comp.</th>
+                        <th>Cons.</th>
+                        <th>Visibilità</th>
+                        <th>Foto</th>
+                        <th class="text-end">Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in challenges %}
+                    <tr>
+                        <td>{{ c.title }}</td>
+                        <td>{{ c.points }}</td>
+                        <td>{{ c.max_completions }}</td>
+                        <td>{% if c.is_consecutive %}Sì{% else %}No{% endif %}</td>
+                        <td>{{ c.visibility_time | default: "Sempre" }}</td>
+                        <td>{% if c.show_photo %}Sì{% else %}No{% endif %}</td>
+                        <td class="text-end">
+                            <button class="btn btn-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#editChallengeModal{{ c.id }}"><i class="bi bi-pencil"></i></button>
+                            <form action="{{"admin/removeChallenge/" | url}}{{ c.id }}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-danger shadow-sm ms-1" onclick="return confirm('Sicuro di voler eliminare questa sfida?');"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- Edit Challenge Modal -->
+                    <div class="modal fade" id="editChallengeModal{{ c.id }}" tabindex="-1" aria-hidden="true">
+                      <div class="modal-dialog modal-lg text-dark">
+                        <div class="modal-content text-start">
+                          <form action="{{"admin/editChallenge/" | url}}{{ c.id }}" method="post">
+                              <div class="modal-header">
+                                <h5 class="modal-title">Modifica Sfida: {{ c.title }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-8 mb-3">
+                                      <label class="form-label">Titolo Sfida</label>
+                                      <input type="text" name="title" class="form-control" value="{{ c.title }}" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                      <label class="form-label">Punti</label>
+                                      <input type="number" name="points" class="form-control" value="{{ c.points }}" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                  <label class="form-label">Descrizione</label>
+                                  <textarea name="description" class="form-control" rows="3" required>{{ c.description }}</textarea>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                      <label class="form-label">Data Sblocco (Opzionale)</label>
+                                      <input type="datetime-local" step="1" name="visibility_time" class="form-control" value="{{ c.visibility_time | replace: ' ', 'T' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3 d-flex align-items-center">
+                                      <div class="form-check mt-4">
+                                        <input class="form-check-input" type="checkbox" name="show_photo" value="1" id="reqPhotoEdit{{ c.id }}" {% if c.show_photo %}checked{% endif %} onchange="toggleMaxCompEdit(this, {{ c.id }});">
+                                        <label class="form-check-label" for="reqPhotoEdit{{ c.id }}">Richiede Foto</label>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3" id="maxCompBoxEdit{{ c.id }}" style="{% if c.show_photo == 0 %}display: none;{% endif %}">
+                                      <label class="form-label">Max Completamenti</label>
+                                      <input type="number" name="max_completions" class="form-control" value="{{ c.max_completions }}" min="1">
+                                    </div>
+                                </div>
+                                <script>
+                                  function toggleMaxCompEdit(checkbox, id) {
+                                    document.getElementById('jsonBoxEdit' + id).style.display = checkbox.checked ? 'none' : 'block';
+                                    document.getElementById('maxCompBoxEdit' + id).style.display = checkbox.checked ? 'block' : 'none';
+                                    document.getElementById('consecutiveBoxEdit' + id).style.display = checkbox.checked ? 'block' : 'none';
+                                  }
+                                </script>
+                                <div id="consecutiveBoxEdit{{ c.id }}" style="{% if c.show_photo == 0 %}display: none;{% endif %}" class="mb-3 px-3">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_consecutive" value="1" id="isConsEdit{{ c.id }}" {% if c.is_consecutive %}checked{% endif %}>
+                                    <label class="form-check-label" for="isConsEdit{{ c.id }}">Sfida Consecutiva (Blocca team finché non finita)</label>
+                                  </div>
+                                </div>
+
+                                <div class="mb-3 border p-3 rounded bg-light automationBoxEdit" id="jsonBoxEdit{{ c.id }}" style="{% if c.show_photo %}display: none;{% endif %}" data-id="{{ c.id }}" data-json="{{ c.achieve_condition | escape }}">
+                                  <label class="form-label fw-bold">Automazione Sblocco Sfida</label>
+                                  
+                                  <div class="mb-3">
+                                      <label class="form-label">Tipo di Automazione</label>
+                                      <select id="autoTypeEdit{{ c.id }}" class="form-select">
+                                          <option value="manual">Assegnazione Manuale (a cura dell'Admin)</option>
+                                          <option value="photo">Foto Specifiche</option>
+                                          <option value="photogroup">Gruppi di Foto (Zone)</option>
+                                      </select>
+                                  </div>
+
+                                  <!-- Interfaccia Photo -->
+                                  <div id="uiPhotoEdit{{ c.id }}" style="display: none;">
+                                      <label class="form-label">Seleziona le foto necessarie</label>
+                                      <select id="autoPhotoTargetsEdit{{ c.id }}" class="form-select" multiple size="4">
+                                          {% for p in photos %}
+                                          <option value="{{p.id}}">{{p.title}}</option>
+                                          {% endfor %}
+                                      </select>
+                                  </div>
+
+                                  <!-- Interfaccia PhotoGroup -->
+                                  <div id="uiPhotoGroupEdit{{ c.id }}" style="display: none;">
+                                      <div class="mb-2">
+                                          <label class="form-label">Condizione di Completamento</label>
+                                          <select id="autoGroupConditionEdit{{ c.id }}" class="form-select">
+                                              <option value="all">Tutte le foto di UN gruppo</option>
+                                              <option value="non_empty">Almeno una foto in PIU' gruppi</option>
+                                          </select>
+                                      </div>
+                                      
+                                      <div id="uiGroupSingleEdit{{ c.id }}">
+                                          <label class="form-label">Seleziona il Gruppo (Zona)</label>
+                                          <select id="autoGroupTargetSingleEdit{{ c.id }}" class="form-select">
+                                              {% for g in photogroups %}
+                                              <option value="{{g.id}}">{{g.name}}</option>
+                                              {% endfor %}
+                                          </select>
+                                      </div>
+
+                                      <div id="uiGroupMultipleEdit{{ c.id }}" style="display: none;">
+                                          <label class="form-label">Seleziona i Gruppi necessari</label>
+                                          <select id="autoGroupTargetMultipleEdit{{ c.id }}" class="form-select" multiple size="4">
+                                              {% for g in photogroups %}
+                                              <option value="{{g.id}}">{{g.name}}</option>
+                                              {% endfor %}
+                                          </select>
+                                      </div>
+                                  </div>
+
+                                  <input type="hidden" name="achieve_condition" id="achieve_condition_inputEdit{{ c.id }}">
+                                  <div class="mt-3">
+                                      <small class="text-muted">JSON Generato: <span id="jsonPreviewEdit{{ c.id }}"></span></small>
+                                  </div>
+                                </div>
+
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                                <button type="submit" class="btn btn-warning">Salva Modifiche</button>
+                              </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Challenge Modal -->
+<div class="modal fade" id="addChallengeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg text-dark">
+    <div class="modal-content text-start">
+      <form action="{{"admin/addChallenge" | url}}" method="post">
+          <div class="modal-header">
+            <h5 class="modal-title">Aggiungi Nuova Sfida</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                  <label class="form-label">Titolo Sfida</label>
+                  <input type="text" name="title" class="form-control" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Punti</label>
+                  <input type="number" name="points" class="form-control" required value="0">
+                </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descrizione</label>
+              <textarea name="description" class="form-control" rows="3" required></textarea>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Data Sblocco (Opzionale)</label>
+                  <input type="datetime-local" step="1" name="visibility_time" class="form-control">
+                  <small class="text-muted">Lascia vuoto per visibilità immediata.</small>
+                </div>
+                <div class="col-md-4 mb-3 d-flex align-items-center">
+                  <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" name="show_photo" value="1" id="reqPhoto" onchange="toggleMaxCompAdd(this);">
+                    <label class="form-check-label" for="reqPhoto">Richiede Foto</label>
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3" id="maxCompBoxAdd" style="display: none;">
+                  <label class="form-label">Max Completamenti</label>
+                  <input type="number" name="max_completions" class="form-control" value="1" min="1">
+                </div>
+            </div>
+            <script>
+              function toggleMaxCompAdd(checkbox) {
+                document.getElementById('automationBoxAdd').style.display = checkbox.checked ? 'none' : 'block';
+                document.getElementById('maxCompBoxAdd').style.display = checkbox.checked ? 'block' : 'none';
+              }
+            </script>
+
+            <div class="mb-3 border p-3 rounded bg-light" id="automationBoxAdd">
+              <label class="form-label fw-bold">Automazione Sblocco Sfida</label>
+              
+              <div class="mb-3">
+                  <label class="form-label">Tipo di Automazione</label>
+                  <select id="autoType" class="form-select" onchange="updateAutoUI()">
+                      <option value="manual">Assegnazione Manuale (a cura dell'Admin)</option>
+                      <option value="photo">Foto Specifiche</option>
+                      <option value="photogroup">Gruppi di Foto (Zone)</option>
+                  </select>
+              </div>
+
+              <!-- Interfaccia Photo -->
+              <div id="uiPhoto" style="display: none;">
+                  <label class="form-label">Seleziona le foto necessarie (puoi selezionarne più di una tenendo premuto Ctrl/Cmd)</label>
+                  <select id="autoPhotoTargets" class="form-select" multiple size="4">
+                      {% for p in photos %}
+                      <option value="{{p.id}}">{{p.title}}</option>
+                      {% endfor %}
+                  </select>
+                  <div class="mt-2 form-check">
+                      <input class="form-check-input" type="checkbox" name="is_consecutive" value="1" id="isConsAdd">
+                      <label class="form-check-label" for="isConsAdd">Sfida Consecutiva (Blocca team finché non finita)</label>
+                  </div>
+              </div>
+
+              <!-- Interfaccia PhotoGroup -->
+              <div id="uiPhotoGroup" style="display: none;">
+                  <div class="mb-2">
+                      <label class="form-label">Condizione di Completamento</label>
+                      <select id="autoGroupCondition" class="form-select" onchange="updateGroupUI()">
+                          <option value="all">Tutte le foto di UN gruppo</option>
+                          <option value="non_empty">Almeno una foto in PIU' gruppi</option>
+                      </select>
+                  </div>
+                  
+                  <div id="uiGroupSingle">
+                      <label class="form-label">Seleziona il Gruppo (Zona)</label>
+                      <select id="autoGroupTargetSingle" class="form-select">
+                          {% for g in photogroups %}
+                          <option value="{{g.id}}">{{g.name}}</option>
+                          {% endfor %}
+                      </select>
+                  </div>
+
+                  <div id="uiGroupMultiple" style="display: none;">
+                      <label class="form-label">Seleziona i Gruppi necessari (selezione multipla)</label>
+                      <select id="autoGroupTargetMultiple" class="form-select" multiple size="4">
+                          {% for g in photogroups %}
+                          <option value="{{g.id}}">{{g.name}}</option>
+                          {% endfor %}
+                      </select>
+                  </div>
+              </div>
+
+              <!-- Hidden input bound to form -->
+              <input type="hidden" name="achieve_condition" id="achieve_condition_input">
+              <div class="mt-3">
+                  <small class="text-muted">JSON Generato: <span id="jsonPreview">Nessuno</span></small>
+              </div>
+
+              <script>
+                  function updateAutoUI() {
+                      const type = document.getElementById('autoType').value;
+                      document.getElementById('uiPhoto').style.display = type === 'photo' ? 'block' : 'none';
+                      document.getElementById('uiPhotoGroup').style.display = type === 'photogroup' ? 'block' : 'none';
+                      generateJSON();
+                  }
+
+                  function updateGroupUI() {
+                      const cond = document.getElementById('autoGroupCondition').value;
+                      document.getElementById('uiGroupSingle').style.display = cond === 'all' ? 'block' : 'none';
+                      document.getElementById('uiGroupMultiple').style.display = cond === 'non_empty' ? 'block' : 'none';
+                      generateJSON();
+                  }
+
+                  function generateJSON() {
+                      const type = document.getElementById('autoType').value;
+                      let jsonObj = null;
+
+                      if (type === 'photo') {
+                          const options = Array.from(document.getElementById('autoPhotoTargets').selectedOptions).map(o => parseInt(o.value));
+                          if (options.length > 0) {
+                              jsonObj = { type: "photo", target: options.length === 1 ? options[0] : options };
+                          }
+                      } else if (type === 'photogroup') {
+                          const cond = document.getElementById('autoGroupCondition').value;
+                          if (cond === 'all') {
+                              const val = document.getElementById('autoGroupTargetSingle').value;
+                              if (val) jsonObj = { type: "photogroup", condition: "all", target: parseInt(val) };
+                          } else {
+                              const options = Array.from(document.getElementById('autoGroupTargetMultiple').selectedOptions).map(o => parseInt(o.value));
+                              if (options.length > 0) {
+                                  jsonObj = { type: "photogroup", condition: "non_empty", target: options };
+                              }
+                          }
+                      } else if (type === 'manual') {
+                          jsonObj = { type: "manual" };
+                      }
+
+                      const finalString = jsonObj ? JSON.stringify(jsonObj) : "";
+                      document.getElementById('achieve_condition_input').value = finalString;
+                      document.getElementById('jsonPreview').innerText = finalString || "Nessuno (Manuale)";
+                  }
+
+                  document.getElementById('autoPhotoTargets').addEventListener('change', generateJSON);
+                  document.getElementById('autoGroupCondition').addEventListener('change', generateJSON);
+                  document.getElementById('autoGroupTargetSingle').addEventListener('change', generateJSON);
+                  document.getElementById('autoGroupTargetMultiple').addEventListener('change', generateJSON);
+              </script>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+            <button type="submit" class="btn btn-success">Salva Sfida</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function updateAutoUIEdit(id) {
+        const type = document.getElementById('autoTypeEdit' + id).value;
+        document.getElementById('uiPhotoEdit' + id).style.display = type === 'photo' ? 'block' : 'none';
+        document.getElementById('uiPhotoGroupEdit' + id).style.display = type === 'photogroup' ? 'block' : 'none';
+        generateJSONEdit(id);
+    }
+
+    function updateGroupUIEdit(id) {
+        const cond = document.getElementById('autoGroupConditionEdit' + id).value;
+        document.getElementById('uiGroupSingleEdit' + id).style.display = cond === 'all' ? 'block' : 'none';
+        document.getElementById('uiGroupMultipleEdit' + id).style.display = cond === 'non_empty' ? 'block' : 'none';
+        generateJSONEdit(id);
+    }
+
+    function generateJSONEdit(id) {
+        const type = document.getElementById('autoTypeEdit' + id).value;
+        let jsonObj = null;
+        if (type === 'photo') {
+            const options = Array.from(document.getElementById('autoPhotoTargetsEdit' + id).selectedOptions).map(o => parseInt(o.value));
+            if (options.length > 0) {
+                jsonObj = { type: "photo", target: options.length === 1 ? options[0] : options };
+            }
+        } else if (type === 'photogroup') {
+            const cond = document.getElementById('autoGroupConditionEdit' + id).value;
+            if (cond === 'all') {
+                const val = document.getElementById('autoGroupTargetSingleEdit' + id).value;
+                if (val) jsonObj = { type: "photogroup", condition: "all", target: parseInt(val) };
+            } else {
+                const options = Array.from(document.getElementById('autoGroupTargetMultipleEdit' + id).selectedOptions).map(o => parseInt(o.value));
+                if (options.length > 0) {
+                    jsonObj = { type: "photogroup", condition: "non_empty", target: options };
+                }
+            }
+        } else if (type === 'manual') {
+            jsonObj = { type: "manual" };
+        }
+        const finalString = jsonObj ? JSON.stringify(jsonObj) : "";
+        document.getElementById('achieve_condition_inputEdit' + id).value = finalString;
+        document.getElementById('jsonPreviewEdit' + id).innerText = finalString || "Nessuno (Manuale)";
+    }
+
+    document.querySelectorAll('.automationBoxEdit').forEach(box => {
+        const id = box.getAttribute('data-id');
+        const jsonStr = box.getAttribute('data-json');
+        
+        document.getElementById('autoTypeEdit' + id).addEventListener('change', () => updateAutoUIEdit(id));
+        document.getElementById('autoPhotoTargetsEdit' + id).addEventListener('change', () => generateJSONEdit(id));
+        document.getElementById('autoGroupConditionEdit' + id).addEventListener('change', () => updateGroupUIEdit(id));
+        document.getElementById('autoGroupTargetSingleEdit' + id).addEventListener('change', () => generateJSONEdit(id));
+        document.getElementById('autoGroupTargetMultipleEdit' + id).addEventListener('change', () => generateJSONEdit(id));
+
+        if (!jsonStr || jsonStr.trim() === '') {
+            document.getElementById('autoTypeEdit' + id).value = 'manual';
+            updateAutoUIEdit(id);
+            return;
+        }
+        
+        try {
+            const data = JSON.parse(jsonStr);
+            if (data.type === 'manual') {
+                document.getElementById('autoTypeEdit' + id).value = 'manual';
+            } else if (data.type === 'photo') {
+                document.getElementById('autoTypeEdit' + id).value = 'photo';
+                const targets = Array.isArray(data.target) ? data.target : [data.target];
+                Array.from(document.getElementById('autoPhotoTargetsEdit' + id).options).forEach(opt => {
+                    opt.selected = targets.includes(parseInt(opt.value));
+                });
+            } else if (data.type === 'photogroup') {
+                document.getElementById('autoTypeEdit' + id).value = 'photogroup';
+                document.getElementById('autoGroupConditionEdit' + id).value = data.condition;
+                if (data.condition === 'all') {
+                    document.getElementById('autoGroupTargetSingleEdit' + id).value = data.target;
+                } else {
+                    const targets = Array.isArray(data.target) ? data.target : [data.target];
+                    Array.from(document.getElementById('autoGroupTargetMultipleEdit' + id).options).forEach(opt => {
+                        opt.selected = targets.includes(parseInt(opt.value));
+                    });
+                }
+            } else {
+                document.getElementById('autoTypeEdit' + id).value = 'manual';
+            }
+        } catch(e) {
+            console.error("Failed to parse condition form existing JSON: ", e);
+            document.getElementById('autoTypeEdit' + id).value = 'manual';
+        }
+
+        updateAutoUIEdit(id);
+        if(document.getElementById('autoTypeEdit' + id).value === 'photogroup') {
+            updateGroupUIEdit(id);
+        }
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{% assign title = "Cronologia dei Re" %}
+{% extends "Templates/base_footer" %}
+
+{% block content %}
+<div class="container-fluid bg-primary pt-3 min-vh-100 pb-5">
+    <div class="mb-3">
+        <a href="{{"" | url}}" class="btn btn-light shadow-sm"><i class="bi bi-arrow-left"></i> Torna alla Home</a>
+    </div>
+
+    <h1 class="corsivo text-white text-center mb-5" style="font-size: 300%">Cronologia dei Re</h1>
+
+    <div class="row g-4">
+        {% for king in kings %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <div class="card h-100 shadow-lg border-0 rounded-4 overflow-hidden bg-white">
+                <div class="card-header bg-warning text-dark py-2 text-center border-0">
+                    <h5 class="mb-0 corsivo"><i class="bi bi-crown-fill me-1"></i>{{ king.name }}</h5>
+                </div>
+                
+                {% if king.last_location %}
+                <div class="position-relative">
+                    <img src="{{ king.last_location.path | replace: 'resources/', '' | url }}" class="img-fluid w-100" alt="Location photo" style="aspect-ratio: 1/1; object-fit: contain; background: #000;">
+                    <div class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white">
+                        <small><i class="bi bi-clock me-1"></i>{{ king.last_location.timestamp | date: "%H:%M" }}</small>
+                    </div>
+                </div>
+                <div class="card-body p-3 text-center">
+                    <h5 class="card-title text-primary mb-1">
+                        <i class="bi bi-geo-alt-fill me-1 text-danger"></i>{{ king.last_location.location_name }}
+                    </h5>
+                    <p class="card-text small text-muted">
+                        {{ king.last_location.timestamp | date: "%d/%m/%Y" }}
+                    </p>
+                </div>
+                {% else %}
+                <div class="card-body p-5 text-center text-muted">
+                    <i class="bi bi-camera-video d-block fs-1 mb-2 opacity-25"></i>
+                    <p class="small mb-0">Ancora nessun aggiornamento</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if kings.size == 0 %}
+    <div class="alert alert-info text-center shadow border-0 mt-5">
+        Nessun Re si è ancora svelato/a!
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

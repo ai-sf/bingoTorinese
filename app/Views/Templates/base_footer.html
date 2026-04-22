@@ -8,7 +8,7 @@
 
    {% include "Templates/mobile-navbar" %}
 
-    <main class="min-vh-100">
+    <main>
       {% block content %}
       Content
     {% endblock %}
@@ -26,10 +26,10 @@
 </div>
 
 
-  <footer class="bg-dark text-light py-3 mt-5">
+  <footer class="bg-dark text-light py-3">
     <div class="container text-center">
       <div>
-        Benvenuto/a, <span class="fw-bold"> {{ logged_user.name }} {{logged_user.surname}} </span>
+        Benvenuto/a, <span class="fw-bold"> {{logged_user.username}} </span>
       </div>
       <div>
         <a href="{{"logout" | url }}" class="btn btn-outline-light btn-sm mt-2">Logout</a>

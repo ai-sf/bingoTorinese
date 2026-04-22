@@ -1,0 +1,102 @@
+{% extends "Templates/base_footer" %}
+
+{% block content %}
+<div class="container-fluid bg-primary pt-3 min-vh-100 pb-5">
+    <div class="mb-3">
+        <a href="{{"admin" | url}}" class="btn btn-light shadow-sm"><i class="bi bi-arrow-left"></i> Torna alla Dashboard</a>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title d-flex justify-content-between align-items-center">
+                Gestione Gruppi Foto (Zone)
+                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addGroupModal">Aggiungi Gruppo</button>
+            </h5>
+            <div class="table-responsive mt-3">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Moltiplicatore</th>
+                            <th class="text-end">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for g in photogroups %}
+                        <tr>
+                            <td>{{ g.id }}</td>
+                            <td>{{ g.name }}</td>
+                            <td>{% if g.is_multiplier %}Sì (+10% Bonus){% else %}No (Punti Base){% endif %}</td>
+                            <td class="text-end">
+                                <a href="{{"admin/groupPhotos/" | url}}{{ g.id }}" class="btn btn-info shadow-sm text-white" title="Gestisci Foto"><i class="bi bi-images"></i> Foto</a>
+                                <button class="btn btn-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#editGroupModal{{ g.id }}"><i class="bi bi-pencil"></i></button>
+                                <form action="{{"admin/removeGroup/" | url}}{{ g.id }}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger shadow-sm ms-1" onclick="return confirm('Sicuro di voler eliminare questo gruppo?');"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+
+                        <!-- Edit Group Modal -->
+                        <div class="modal fade" id="editGroupModal{{ g.id }}" tabindex="-1" aria-hidden="true">
+                          <div class="modal-dialog text-dark">
+                            <div class="modal-content text-start">
+                              <form action="{{"admin/editGroup/" | url}}{{ g.id }}" method="post">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title">Modifica Gruppo: {{ g.name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <div class="mb-3">
+                                      <label class="form-label">Nome Gruppo</label>
+                                      <input type="text" name="name" class="form-control" value="{{ g.name }}" required>
+                                    </div>
+                                    <div class="mb-3 form-check mt-4">
+                                      <input class="form-check-input" type="checkbox" name="is_multiplier" value="1" id="isMultiEdit{{ g.id }}" {% if g.is_multiplier %}checked{% endif %}>
+                                      <label class="form-check-label" for="isMultiEdit{{ g.id }}">È un Moltiplicatore (+10% anzichè 10 pt fissi)</label>
+                                    </div>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                                    <button type="submit" class="btn btn-warning">Salva Modifiche</button>
+                                  </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Group Modal -->
+    <div class="modal fade" id="addGroupModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog text-dark">
+        <div class="modal-content text-start">
+          <form action="{{"admin/addGroup" | url}}" method="post">
+              <div class="modal-header">
+                <h5 class="modal-title">Aggiungi Nuovo Gruppo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label class="form-label">Nome Gruppo (Zona)</label>
+                  <input type="text" name="name" class="form-control" required>
+                </div>
+                <div class="mb-3 form-check mt-4">
+                  <input class="form-check-input" type="checkbox" name="is_multiplier" value="1" id="isMultiAdd">
+                  <label class="form-check-label" for="isMultiAdd">È un Moltiplicatore (+10% anzichè 10 pt fissi)</label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="submit" class="btn btn-success">Crea Gruppo</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}

@@ -13,7 +13,7 @@
         <h4 class="corsivo">Carica foto</h4>
         <div class="mb-3">
             <form enctype="multipart/form-data" id="photo_form" method="post" hx-swap="none" hx-post="{{"photos/upload_photo" | url}}">
-                    <input class="form-control" name="photo" type="file" id="formFile">
+                    <input class="form-control" name="photo" type="file" id="formFile" accept="image/*">
                     <input type="hidden" name="photo_id" value="{{challenge.id}}">
             </form>
         </div>

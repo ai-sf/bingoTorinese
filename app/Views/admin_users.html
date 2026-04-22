@@ -1,0 +1,119 @@
+{% extends "Templates/base_footer" %}
+
+{% block content %}
+<div class="container-fluid bg-primary pt-3 min-vh-100 pb-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="corsivo text-white mb-0" style="font-size: 250%">{{ title }}</h1>
+            <a href="{{"admin" | url}}" class="btn btn-outline-light"><i class="bi bi-arrow-left"></i> Torna alla Dashboard</a>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Elenco Account</h5>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAccountModal">
+                        <i class="bi bi-person-plus"></i> Aggiungi Account
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Username</th>
+                                <th>Livello</th>
+                                <th class="text-end">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr>
+                                <td>
+                                    <span class="fw-bold">{{ u.username }}</span>
+                                    {% if u.level == 1 and u.team %}
+                                    <div class="small text-muted">Squadra: {{ u.team.name }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge {% if u.level == 1 %}bg-primary{% elsif u.level == 2 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                        {% if u.level == 1 %}Team{% elsif u.level == 2 %}King{% else %}Admin{% endif %}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#changePasswordModal{{ u.id }}">
+                                        <i class="bi bi-key"></i> Password
+                                    </button>
+                                    <form action="{{"admin/removeAccount/" | url}}{{ u.id }}" method="post" class="d-inline" onsubmit="return confirm('Sei sicuro di voler eliminare questo account?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger ms-1">
+                                            <i class="bi bi-trash"></i> Elimina
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                            <!-- Modal Cambio Password -->
+                            <div class="modal fade" id="changePasswordModal{{ u.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form action="{{"admin/setPassword/" | url}}{{ u.id }}" method="post">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Cambia Password per {{ u.username }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nuova Password</label>
+                                                    <input type="password" name="password" class="form-control" placeholder="Inserisci la nuova password" required>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                                                <button type="submit" class="btn btn-warning">Salva Modifiche</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Aggiungi Account -->
+<div class="modal fade" id="addAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{"admin/addAccount" | url}}" method="post">
+                <input type="hidden" name="level" value="{{ target_level }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Aggiungi {{ title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome (Squadra/Re/Persona)</label>
+                        <input type="text" name="display_name" class="form-control" placeholder="Nome visualizzato" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" placeholder="Nome utente per il login" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="Password iniziale" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-success">Crea Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

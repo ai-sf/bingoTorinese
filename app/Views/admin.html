@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="container-fluid bg-primary pt-3 vh-100">
+<div class="container-fluid bg-primary pt-3 min-vh-100 pb-5">
 
 
 <div class="card">
@@ -18,6 +18,80 @@
     </div>
 </div>
 
+<div class="row mt-4">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-primary">
+            <div class="card-body text-center">
+                <div class="display-4 text-primary mb-3"><i class="bi bi-people"></i></div>
+                <h5 class="card-title">Gestione Team</h5>
+                <a href="{{"admin/teams" | url}}" class="btn btn-primary w-100 mt-2">Apri Gestione</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-warning">
+            <div class="card-body text-center">
+                <div class="display-4 text-warning mb-3"><i class="bi bi-person-badge"></i></div>
+                <h5 class="card-title">Gestione Re</h5>
+                <a href="{{"admin/kings" | url}}" class="btn btn-warning w-100 mt-2 text-dark fw-bold">Apri Gestione</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-danger">
+            <div class="card-body text-center">
+                <div class="display-4 text-danger mb-3"><i class="bi bi-shield-lock"></i></div>
+                <h5 class="card-title">Gestione Admin</h5>
+                <a href="{{"admin/admins" | url}}" class="btn btn-danger w-100 mt-2">Apri Gestione</a>
+            </div>
+        </div>
+    </div>
+</div>
 
+<hr class="border-white opacity-25 my-4">
+
+<div class="row">
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-3">Gestione Sfide </h5>
+                <a href="{{"admin/challenges" | url}}" class="btn btn-primary btn-sm shadow-sm"><i class="bi bi-cocktail"></i> Sfide</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-3">Sfide Manuali</h5>
+                <a href="{{"admin/manual" | url}}" class="btn btn-warning btn-sm shadow-sm"><i class="bi bi-person-check"></i> Assegnazione</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-3">Gruppi/Zone</h5>
+                <a href="{{"admin/groups" | url}}" class="btn btn-info btn-sm shadow-sm text-white"><i class="bi bi-images"></i> Gruppi</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card h-100 border-success">
+            <div class="card-body text-center">
+                <h5 class="card-title text-success mb-3"><i class="bi bi-trophy"></i> Classifica</h5>
+                <a href="{{"standings" | url}}" class="btn btn-success btn-sm shadow-sm"><i class="bi bi-list-ol"></i> Classifica</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card h-100 border-secondary">
+            <div class="card-body text-center">
+                <h5 class="card-title text-secondary mb-3"><i class="bi bi-gear-fill"></i> Impostazioni</h5>
+                <a href="{{"admin/settings" | url}}" class="btn btn-secondary btn-sm shadow-sm text-white"><i class="bi bi-hammer"></i> Configura</a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
 
 {% endblock %}
