@@ -15,3 +15,5 @@ jobs:
         server-dir: www.ai-sf.it/bingo/
         username: 6704760@aruba.it
         password: ${{ secrets.ftp_password }}
+        exclude: |
+          */**/_db.php
