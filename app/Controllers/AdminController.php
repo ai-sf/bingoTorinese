@@ -8,7 +8,7 @@ use Lepton\Boson\Model;
 use Liquid\{Liquid, Template};
 use Lepton\Authenticator\AccessControlAttributes\LoginRequired;
 use Lepton\Authenticator\UserAuthenticator;
-use App\Models\{Challenge, PhotoGroup, Team, Photo, BingoSettings, TeamHasChallenge, TeamHasPhoto, User};
+use App\Models\{Challenge, PhotoGroup, Team, Photo, BingoSettings, TeamHasChallenge, TeamHasPhoto, User, KingLocation};
 
 class AdminController extends BaseController
 {
@@ -525,5 +525,39 @@ class AdminController extends BaseController
         }
         return $this->redirect("admin/settings");
     }
+    #[LoginRequired(level: 3)]
+    public function adminResetGame() {
+        $user = (new UserAuthenticator())->getLoggedUser();
+        if ($user->level < 3) return $this->redirect("admin");
 
+        // 1. Delete TeamHasPhoto records and files
+        $thps = TeamHasPhoto::all();
+        foreach ($thps as $thp) {
+            if ($thp->path && file_exists($thp->path)) {
+                @unlink($thp->path);
+            }
+            $thp->delete();
+        }
+
+        // 2. Delete KingLocation records and files
+        $klocs = KingLocation::all();
+        foreach ($klocs as $kloc) {
+            if ($kloc->path && file_exists($kloc->path)) {
+                @unlink($kloc->path);
+            }
+            $kloc->delete();
+        }
+
+        // 3. Delete all TeamHasChallenge records
+        $thcs = TeamHasChallenge::all();
+        foreach ($thcs as $thc) {
+            $thc->delete();
+        }
+
+        return $this->render(
+            "Site/toaster",
+            ["message" => "Gioco resettato con successo! Tutti i dati e le foto sono stati eliminati."],
+            headers: ['HX-Trigger' => 'showToast']
+        );
+    }
 }

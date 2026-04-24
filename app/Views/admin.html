@@ -92,6 +92,21 @@
         </div>
     </div>
 </div>
+
+<div class="card mt-5 border-danger bg-danger-subtle">
+    <div class="card-body">
+        <h5 class="card-title text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> Danger Zone</h5>
+        <p class="card-text small">Attenzione: le seguenti azioni sono irreversibili. Resetta solo se sei sicuro di voler cancellare tutto il progresso della gara.</p>
+        <div class="d-grid">
+            <button class="btn btn-danger" 
+                    hx-post="{{"admin/resetGame" | url}}" 
+                    hx-confirm="SEI VERAMENTE SICURO? Questa azione cancellerà TUTTE le foto, le sfide completate e le posizioni dei Re. Non è possibile tornare indietro."
+                    hx-swap="none">
+                <i class="bi bi-trash3-fill"></i> Reset Gioco (Reset sfide)
+            </button>
+        </div>
+    </div>
+</div>
 </div>
 
 {% endblock %}

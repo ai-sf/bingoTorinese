@@ -41,6 +41,7 @@ return [
     "admin/toggleManual" => [AdminController::class, "adminToggleManual"],
     "admin/settings" => [AdminController::class, "adminSettings"],
     "admin/settings/update" => [AdminController::class, "updateSettings"],
+    "admin/resetGame" => [AdminController::class, "adminResetGame"],
     "standings" => [AdminController::class, "standings"],
     "team/viewPhotos/<int:id>" => [BingoController::class, "viewPhotos"]
  ];
